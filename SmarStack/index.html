@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartStack Supplements — AI-Powered Supplement Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a6b4a;
+    --green-light: #e8f5ef;
+    --green-mid: #2d9166;
+    --gold: #c8933a;
+    --gold-light: #fdf4e7;
+    --dark: #0f1a14;
+    --text: #1c2b22;
+    --muted: #5a7060;
+    --border: #d4e4d8;
+    --bg: #f7faf8;
+    --white: #ffffff;
+    --radius: 12px;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* NAV */
+  nav {
+    background: var(--dark);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-family: var(--serif); font-size: 24px; color: #fff; letter-spacing: -0.5px; }
+  .logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; font-weight: 400; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: #fff; }
+  .nav-cta { background: var(--green-mid); color: #fff !important; padding: 8px 18px; border-radius: 99px; font-weight: 500 !important; font-size: 13px !important; transition: background 0.2s !important; }
+  .nav-cta:hover { background: var(--green) !important; color: #fff !important; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero {
+    background: var(--dark);
+    color: #fff;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(45,145,102,0.25) 0%, transparent 70%);
+  }
+  .hero-tag { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(2.4rem, 6vw, 4rem); line-height: 1.1; margin-bottom: 1.25rem; position: relative; }
+  .hero h1 em { font-style: italic; color: #7ec9a0; }
+  .hero p { font-size: 17px; color: rgba(255,255,255,0.65); max-width: 520px; margin: 0 auto 2rem; }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .btn-primary { background: var(--green-mid); color: #fff; border: none; padding: 13px 28px; border-radius: 99px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: var(--sans); transition: background 0.2s, transform 0.15s; }
+  .btn-primary:hover { background: var(--green); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 13px 28px; border-radius: 99px; font-size: 15px; font-weight: 400; cursor: pointer; font-family: var(--sans); transition: border-color 0.2s, background 0.2s; }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
+  .trust-strip { display: flex; gap: 2rem; justify-content: center; margin-top: 3rem; flex-wrap: wrap; position: relative; }
+  .trust-item { font-size: 13px; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 6px; }
+  .trust-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid); }
+
+  /* FILTER BAR */
+  .filter-bar { padding: 1.5rem 2rem; background: var(--white); border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 13px; color: var(--muted); font-weight: 500; margin-right: 4px; }
+  .filter-btn { padding: 6px 16px; border-radius: 99px; border: 1px solid var(--border); background: transparent; font-size: 13px; color: var(--muted); cursor: pointer; font-family: var(--sans); transition: all 0.15s; }
+  .filter-btn:hover { border-color: var(--green-mid); color: var(--green); }
+  .filter-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* PRODUCT GRID */
+  .store-section { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem; }
+  .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; }
+  .section-title { font-family: var(--serif); font-size: 28px; color: var(--text); }
+  .section-count { font-size: 13px; color: var(--muted); }
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+  .product-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(26,107,74,0.1); }
+  .product-img {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    position: relative;
+  }
+  .badge-essential { position: absolute; top: 12px; left: 12px; background: var(--green); color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; }
+  .badge-popular { position: absolute; top: 12px; left: 12px; background: var(--gold); color: #fff; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; }
+  .product-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+  .product-category { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green-mid); font-weight: 500; margin-bottom: 4px; }
+  .product-name { font-family: var(--serif); font-size: 18px; margin-bottom: 4px; color: var(--text); line-height: 1.2; }
+  .product-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; flex: 1; }
+  .product-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 12px; margin-top: auto; }
+  .product-price { font-size: 18px; font-weight: 500; color: var(--text); }
+
+  .buy-btn { background: var(--green-mid); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--sans); transition: background 0.15s; display: flex; align-items: center; gap: 6px; }
+  .buy-btn:hover { background: var(--green); }
+  .amazon-icon { font-size: 11px; opacity: 0.8; }
+
+
+
+  /* AI ADVISOR PAGE */
+  .advisor-hero {
+    background: linear-gradient(135deg, var(--dark) 0%, #1a3d28 100%);
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    color: #fff;
+  }
+  .advisor-hero h1 { font-family: var(--serif); font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 0.75rem; }
+  .advisor-hero p { color: rgba(255,255,255,0.6); font-size: 16px; max-width: 480px; margin: 0 auto; }
+  .advisor-container { max-width: 700px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+  /* QUIZ */
+  .quiz-step { display: none; animation: fadeIn 0.3s ease; }
+  .quiz-step.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .quiz-progress { display: flex; gap: 4px; margin-bottom: 2rem; }
+  .prog-seg { height: 3px; flex: 1; background: var(--border); border-radius: 2px; transition: background 0.3s; }
+  .prog-seg.done { background: var(--green-mid); }
+  .prog-seg.active { background: var(--green-mid); opacity: 0.5; }
+  .quiz-q { font-family: var(--serif); font-size: 24px; color: var(--text); margin-bottom: 1.5rem; line-height: 1.3; }
+  .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .quiz-opt { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: all 0.15s; background: var(--white); text-align: left; }
+  .quiz-opt:hover { border-color: var(--green-mid); background: var(--green-light); }
+  .quiz-opt.selected { border-color: var(--green); background: var(--green-light); }
+  .quiz-opt .opt-icon { font-size: 20px; margin-bottom: 4px; display: block; }
+  .quiz-opt .opt-label { font-size: 14px; font-weight: 500; color: var(--text); }
+  .quiz-opt .opt-sub { font-size: 12px; color: var(--muted); }
+  .quiz-opt.selected .opt-label { color: var(--green); }
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; }
+  .btn-back { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 99px; font-size: 14px; cursor: pointer; font-family: var(--sans); }
+  .btn-next { background: var(--green-mid); color: #fff; border: none; padding: 10px 24px; border-radius: 99px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--sans); transition: background 0.15s; }
+  .btn-next:hover { background: var(--green); }
+
+  /* RESULTS */
+  .results-header { text-align: center; margin-bottom: 2rem; }
+  .results-header h2 { font-family: var(--serif); font-size: 28px; color: var(--text); margin-bottom: 0.5rem; }
+  .results-header p { color: var(--muted); font-size: 14px; }
+  .rec-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; display: flex; gap: 16px; align-items: flex-start; transition: box-shadow 0.15s; }
+  .rec-card:hover { box-shadow: 0 4px 20px rgba(26,107,74,0.08); }
+  .rec-emoji { font-size: 32px; width: 52px; height: 52px; background: var(--green-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .rec-body { flex: 1; }
+  .rec-name { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .rec-why { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .rec-footer { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .rec-dose { font-size: 12px; background: var(--green-light); color: var(--green); padding: 3px 10px; border-radius: 99px; font-weight: 500; }
+  .rec-priority { font-size: 12px; background: var(--gold-light); color: var(--gold); padding: 3px 10px; border-radius: 99px; font-weight: 500; }
+  .rec-buy { margin-left: auto; background: #FF9900; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--sans); display: flex; align-items: center; gap: 5px; text-decoration: none; transition: background 0.15s; }
+  .rec-buy:hover { background: #e68a00; }
+  .results-cta { text-align: center; margin-top: 2rem; padding: 1.5rem; background: var(--green-light); border-radius: var(--radius); }
+  .results-cta p { font-size: 14px; color: var(--muted); margin-bottom: 0.75rem; }
+  .loading-state { text-align: center; padding: 3rem 0; }
+  .spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--green-mid); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state p { color: var(--muted); font-size: 14px; }
+
+  /* FOOTER */
+  footer { background: var(--dark); color: rgba(255,255,255,0.5); padding: 2rem; text-align: center; font-size: 13px; line-height: 1.8; margin-top: 3rem; }
+  footer a { color: rgba(255,255,255,0.4); }
+  .affiliate-note { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 0.5rem; }
+
+  @media (max-width: 600px) {
+    .quiz-opts { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: 1fr; }
+    .tracker-bar { gap: 1rem; }
+    .tracker-divider { display: none; }
+    nav { padding: 0 1rem; }
+    .nav-links { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Smart<span>Stack</span></div>
+  <div class="nav-links">
+    <a href="#" class="active" onclick="showPage('store', this)">Shop</a>
+    <a href="#" onclick="showPage('advisor', this)">AI Advisor</a>
+    <a href="#" onclick="showPage('advisor', this)" class="nav-cta">Find My Stack ✦</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ STORE PAGE ═══════════════ -->
+<div id="page-store" class="page active">
+
+  <div class="hero">
+    <div class="hero-tag">Science-backed supplements</div>
+    <h1>The stack that <em>actually</em><br>moves the needle</h1>
+    <p>Every product is handpicked based on research, third-party testing, and real results. Let AI build your personal protocol.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="showPage('advisor', document.querySelector('.nav-links a:nth-child(2)'))">Build My Stack with AI ✦</button>
+      <button class="btn-outline" onclick="document.querySelector('.filter-bar').scrollIntoView({behavior:'smooth'})">Browse Products</button>
+    </div>
+    <div class="trust-strip">
+      <div class="trust-item"><div class="trust-dot"></div> 3rd-party tested</div>
+      <div class="trust-item"><div class="trust-dot"></div> Amazon Prime eligible</div>
+      <div class="trust-item"><div class="trust-dot"></div> Evidence-based picks</div>
+      <div class="trust-item"><div class="trust-dot"></div> Updated monthly</div>
+    </div>
+  </div>
+
+
+
+  <div class="filter-bar">
+    <span class="filter-label">Category:</span>
+    <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
+    <button class="filter-btn" onclick="filterProducts('muscle', this)">Muscle & Strength</button>
+    <button class="filter-btn" onclick="filterProducts('energy', this)">Energy & Focus</button>
+    <button class="filter-btn" onclick="filterProducts('weight', this)">Weight Management</button>
+    <button class="filter-btn" onclick="filterProducts('hormonal', this)">Hormonal Health</button>
+    <button class="filter-btn" onclick="filterProducts('gut', this)">Gut Health</button>
+  </div>
+
+  <div class="store-section">
+    <div class="section-header">
+      <div class="section-title">Curated supplement picks</div>
+      <div class="section-count" id="product-count">27 products</div>
+    </div>
+    <div class="product-grid" id="product-grid"></div>
+  </div>
+
+  <footer>
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;color:#fff;margin-bottom:0.75rem">Smart<span style="color:#c8933a">Stack</span> Supplements</div>
+    <div style="display:flex;gap:1.5rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap">
+      <a href="https://www.tiktok.com/@smartstacksupplements" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+        TikTok
+      </a>
+      <a href="https://www.instagram.com/smartstacksupplements" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        Instagram
+      </a>
+      <a href="https://www.facebook.com/smartstacksupplements" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H12.94c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Facebook
+      </a>
+      <a href="mailto:contact@shadowtradingcomp.com" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        contact@shadowtradingcomp.com
+      </a>
+    </div>
+    <div>SmartStack Supplements — AI-powered supplement recommendations</div>
+    <div class="affiliate-note">As an Amazon Associate and affiliate partner, SmartStack Supplements earns from qualifying purchases at no extra cost to you. Prices shown are approximate and subject to change.</div>
+  </footer>
+</div>
+
+<!-- ═══════════════ AI ADVISOR PAGE ═══════════════ -->
+<div id="page-advisor" class="page">
+  <div class="advisor-hero">
+    <div class="hero-tag">Personalized protocol</div>
+    <h1>Your AI supplement advisor</h1>
+    <p>Answer 5 questions. Get a science-backed supplement stack curated for your exact goals — with direct links to buy.</p>
+  </div>
+
+  <div class="advisor-container">
+
+    <!-- QUIZ -->
+    <div id="quiz-container">
+      <div class="quiz-progress" id="quiz-progress"></div>
+
+      <div class="quiz-step active" id="qstep-0">
+        <div class="quiz-q">What are your goals? <span style="font-size:14px;font-weight:400;color:var(--muted)">Select all that apply</span></div>
+        <div class="quiz-opts" id="goal-opts">
+          <div class="quiz-opt multi" data-group="goal" data-val="build muscle and strength">
+            <span class="opt-icon">💪</span>
+            <div class="opt-label">Build muscle</div>
+            <div class="opt-sub">Strength & size gains</div>
+          </div>
+          <div class="quiz-opt multi" data-group="goal" data-val="lose fat and improve body composition">
+            <span class="opt-icon">🔥</span>
+            <div class="opt-label">Lose fat</div>
+            <div class="opt-sub">Cut & recompose</div>
+          </div>
+          <div class="quiz-opt multi" data-group="goal" data-val="improve endurance and athletic performance">
+            <span class="opt-icon">🏃</span>
+            <div class="opt-label">Endurance</div>
+            <div class="opt-sub">Cardio & stamina</div>
+          </div>
+          <div class="quiz-opt multi" data-group="goal" data-val="boost energy, focus, and cognitive performance">
+            <span class="opt-icon">🧠</span>
+            <div class="opt-label">Energy & focus</div>
+            <div class="opt-sub">Mental performance</div>
+          </div>
+          <div class="quiz-opt multi" data-group="goal" data-val="improve sleep and recovery">
+            <span class="opt-icon">😴</span>
+            <div class="opt-label">Sleep & recovery</div>
+            <div class="opt-sub">Rest optimization</div>
+          </div>
+          <div class="quiz-opt multi" data-group="goal" data-val="support general health and longevity">
+            <span class="opt-icon">🌿</span>
+            <div class="opt-label">General wellness</div>
+            <div class="opt-sub">Health & longevity</div>
+          </div>
+          <div class="quiz-opt multi" data-group="goal" data-val="support hormonal health and testosterone">
+            <span class="opt-icon">⚖️</span>
+            <div class="opt-label">Hormonal health</div>
+            <div class="opt-sub">Balance & vitality</div>
+          </div>
+          <div class="quiz-opt multi" data-group="goal" data-val="improve gut health and digestion">
+            <span class="opt-icon">🦠</span>
+            <div class="opt-label">Gut health</div>
+            <div class="opt-sub">Digestion & microbiome</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:1rem;text-align:center" id="goal-count">Select at least one goal</div>
+        <div class="quiz-nav">
+          <div></div>
+          <button class="btn-next" onclick="nextQ(1)" id="goal-next-btn">Continue →</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" id="qstep-1">
+        <div class="quiz-q">How would you describe your training experience?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" data-group="experience" data-val="beginner, training under 1 year">
+            <span class="opt-icon">🌱</span>
+            <div class="opt-label">Beginner</div>
+            <div class="opt-sub">Under 1 year</div>
+          </div>
+          <div class="quiz-opt" data-group="experience" data-val="intermediate, training 1–3 years">
+            <span class="opt-icon">📈</span>
+            <div class="opt-label">Intermediate</div>
+            <div class="opt-sub">1–3 years</div>
+          </div>
+          <div class="quiz-opt" data-group="experience" data-val="advanced, training 3+ years">
+            <span class="opt-icon">🏆</span>
+            <div class="opt-label">Advanced</div>
+            <div class="opt-sub">3+ years</div>
+          </div>
+          <div class="quiz-opt" data-group="experience" data-val="not currently training, focused on lifestyle health">
+            <span class="opt-icon">🚶</span>
+            <div class="opt-label">Not training</div>
+            <div class="opt-sub">Lifestyle focus</div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="nextQ(0)">← Back</button>
+          <button class="btn-next" onclick="nextQ(2)">Continue →</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" id="qstep-2">
+        <div class="quiz-q">What's your diet style?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" data-group="diet" data-val="omnivore diet, eating meat and dairy">
+            <span class="opt-icon">🥩</span>
+            <div class="opt-label">Omnivore</div>
+            <div class="opt-sub">Eats everything</div>
+          </div>
+          <div class="quiz-opt" data-group="diet" data-val="vegetarian diet, no meat">
+            <span class="opt-icon">🥗</span>
+            <div class="opt-label">Vegetarian</div>
+            <div class="opt-sub">No meat</div>
+          </div>
+          <div class="quiz-opt" data-group="diet" data-val="vegan diet, no animal products">
+            <span class="opt-icon">🌱</span>
+            <div class="opt-label">Vegan</div>
+            <div class="opt-sub">Plant-based only</div>
+          </div>
+          <div class="quiz-opt" data-group="diet" data-val="keto or low-carb diet">
+            <span class="opt-icon">🥑</span>
+            <div class="opt-label">Keto / low-carb</div>
+            <div class="opt-sub">Minimal carbs</div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="nextQ(1)">← Back</button>
+          <button class="btn-next" onclick="nextQ(3)">Continue →</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" id="qstep-3">
+        <div class="quiz-q">Any health conditions or sensitivities?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" data-group="health" data-val="no known conditions or sensitivities">
+            <span class="opt-icon">✅</span>
+            <div class="opt-label">None</div>
+            <div class="opt-sub">No issues</div>
+          </div>
+          <div class="quiz-opt" data-group="health" data-val="high blood pressure or cardiovascular concerns">
+            <span class="opt-icon">❤️</span>
+            <div class="opt-label">Heart / BP</div>
+            <div class="opt-sub">Cardiovascular</div>
+          </div>
+          <div class="quiz-opt" data-group="health" data-val="digestive issues or food sensitivities">
+            <span class="opt-icon">🫁</span>
+            <div class="opt-label">Digestive</div>
+            <div class="opt-sub">GI sensitivities</div>
+          </div>
+          <div class="quiz-opt" data-group="health" data-val="hormonal issues or thyroid conditions">
+            <span class="opt-icon">⚖️</span>
+            <div class="opt-label">Hormonal / thyroid</div>
+            <div class="opt-sub">Hormonal health</div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="nextQ(2)">← Back</button>
+          <button class="btn-next" onclick="nextQ(4)">Continue →</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" id="qstep-4">
+        <div class="quiz-q">What's your monthly supplement budget?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" data-group="budget" data-val="under $30 per month, very budget-conscious">
+            <span class="opt-icon">💵</span>
+            <div class="opt-label">Under $30</div>
+            <div class="opt-sub">Essentials only</div>
+          </div>
+          <div class="quiz-opt" data-group="budget" data-val="$30–$75 per month, moderate budget">
+            <span class="opt-icon">💰</span>
+            <div class="opt-label">$30–$75</div>
+            <div class="opt-sub">Balanced stack</div>
+          </div>
+          <div class="quiz-opt" data-group="budget" data-val="$75–$150 per month, serious about supplementation">
+            <span class="opt-icon">💎</span>
+            <div class="opt-label">$75–$150</div>
+            <div class="opt-sub">Comprehensive stack</div>
+          </div>
+          <div class="quiz-opt" data-group="budget" data-val="over $150 per month, no budget limit">
+            <span class="opt-icon">🚀</span>
+            <div class="opt-label">$150+</div>
+            <div class="opt-sub">Premium protocol</div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="nextQ(3)">← Back</button>
+          <button class="btn-next" onclick="generateRecs()">Get my stack ✦</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="advisor-loading" style="display:none">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p id="loading-msg">Analyzing your profile...</p>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="advisor-results" style="display:none">
+      <div class="results-header">
+        <h2>Your personalized stack</h2>
+        <p id="results-subtitle">Based on your goals and profile</p>
+      </div>
+      <div id="recs-list"></div>
+      <div class="results-cta">
+        <p>Want to explore the full product catalog?</p>
+        <button class="btn-primary" onclick="showPage('store', document.querySelector('.nav-links a'))">Browse All Products →</button>
+      </div>
+      <div style="text-align:center;margin-top:1rem">
+        <button class="btn-back" onclick="restartAdvisor()">← Retake quiz</button>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;color:#fff;margin-bottom:0.75rem">Smart<span style="color:#c8933a">Stack</span> Supplements</div>
+    <div style="display:flex;gap:1.5rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap">
+      <a href="https://www.tiktok.com/@smartstacksupplements" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+        TikTok
+      </a>
+      <a href="https://www.instagram.com/smartstacksupplements" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        Instagram
+      </a>
+      <a href="https://www.facebook.com/smartstacksupplements" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H12.94c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Facebook
+      </a>
+      <a href="mailto:contact@shadowtradingcomp.com" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        contact@shadowtradingcomp.com
+      </a>
+    </div>
+    <div>SmartStack Supplements — AI-powered supplement recommendations</div>
+    <div class="affiliate-note">As an Amazon Associate and affiliate partner, SmartStack Supplements earns from qualifying purchases at no extra cost to you. Always consult a healthcare provider before starting supplements.</div>
+  </footer>
+</div>
+
+<script>
+// ═══ DATA ═══
+const PRODUCTS = [
+  // ── MUSCLE & STRENGTH ──
+  { id:1, name:"Optimum Nutrition Gold Standard 100% Whey", category:"muscle", emoji:"🥛", desc:"The world's best-selling whey protein. 24g of protein per serving with fast-absorbing whey isolate as the primary ingredient.", price:"$54", commission:"4%", badge:"popular", url:"https://www.amazon.com/s?k=optimum+nutrition+gold+standard+whey&tag=smartstacksup-20", tags:["muscle","protein","recovery"] },
+  { id:2, name:"Thorne Creatine Monohydrate", category:"muscle", emoji:"⚡", desc:"NSF Certified for Sport creatine from one of the most trusted names in premium supplementation. Micronized for superior absorption.", price:"$40", commission:"4%", badge:"essential", url:"https://www.amazon.com/s?k=thorne+creatine+monohydrate&tag=smartstacksup-20", tags:["muscle","strength","power"] },
+  { id:3, name:"Ghost Whey Protein", category:"muscle", emoji:"👻", desc:"Premium whey blend with full amino acid profile. Legendary flavors with no proprietary blends — every ingredient fully disclosed.", price:"$55", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=ghost+whey+protein&tag=smartstacksup-20", tags:["muscle","protein","recovery"] },
+  { id:4, name:"Kaged Muscle Citrulline", category:"muscle", emoji:"🍉", desc:"Fermented L-Citrulline for maximum nitric oxide production, blood flow, and skin-splitting pumps during training.", price:"$38", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=kaged+muscle+citrulline&tag=smartstacksup-20", tags:["muscle","pump","endurance"] },
+  { id:5, name:"Transparent Labs Bulk Pre-Workout", category:"muscle", emoji:"🚀", desc:"Fully transparent label with clinical doses. 20g citrulline malate, 4g beta-alanine, and 200mg caffeine for maximum performance.", price:"$50", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=transparent+labs+bulk+pre+workout&tag=smartstacksup-20", tags:["muscle","energy","performance"] },
+  { id:6, name:"NOW Sports Beta-Alanine", category:"muscle", emoji:"🔥", desc:"CarnoSyn patented beta-alanine clinically proven to increase muscular endurance and delay fatigue during intense training.", price:"$32", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=now+sports+beta+alanine+carnosyn&tag=smartstacksup-20", tags:["muscle","endurance","performance"] },
+
+  // ── ENERGY & FOCUS ──
+  { id:7, name:"Cellucor C4 Original Pre-Workout", category:"energy", emoji:"💥", desc:"America's number one pre-workout. Explosive energy, sharp focus, and enhanced endurance with a proven formula trusted by millions.", price:"$42", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=cellucor+c4+original+pre+workout&tag=smartstacksup-20", tags:["energy","focus","performance"] },
+  { id:8, name:"Onnit Alpha Brain", category:"energy", emoji:"🧠", desc:"Clinically studied nootropic formula with Bacopa, Cat's Claw, and Alpha GPC. Supports memory, focus, and mental processing speed.", price:"$55", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=onnit+alpha+brain&tag=smartstacksup-20", tags:["energy","focus","cognitive"] },
+  { id:9, name:"Four Sigmatic Lion's Mane Coffee", category:"energy", emoji:"🦁", desc:"Organic coffee blended with Lion's Mane and Chaga mushrooms. Smooth energy with enhanced focus and zero jitters.", price:"$45", commission:"5%", badge:null, url:"https://www.amazon.com/s?k=four+sigmatic+lions+mane+coffee&tag=smartstacksup-20", tags:["energy","focus","cognitive"] },
+  { id:10, name:"Thorne Rhodiola", category:"energy", emoji:"🌸", desc:"Clinically studied adaptogen that reduces mental fatigue, enhances endurance, and supports healthy stress response.", price:"$38", commission:"5%", badge:null, url:"https://www.amazon.com/s?k=thorne+rhodiola&tag=smartstacksup-20", tags:["energy","stress","endurance"] },
+  { id:11, name:"NOW Foods L-Theanine 200mg", category:"energy", emoji:"🍃", desc:"Pharmaceutical grade L-Theanine paired perfectly with caffeine for calm, clean focus without the crash or anxiety.", price:"$32", commission:"4%", badge:"essential", url:"https://www.amazon.com/s?k=now+foods+l-theanine+200mg&tag=smartstacksup-20", tags:["energy","focus","calm"] },
+  { id:12, name:"LMNT Electrolyte Drink Mix", category:"energy", emoji:"💧", desc:"Science-backed electrolyte ratio with 1000mg sodium, 200mg potassium, and 60mg magnesium. Zero sugar, zero filler.", price:"$45", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=LMNT+electrolyte+drink+mix&tag=smartstacksup-20", tags:["energy","hydration","performance"] },
+
+  // ── WEIGHT MANAGEMENT ──
+  { id:13, name:"Transparent Labs Fat Burner", category:"weight", emoji:"🔥", desc:"Clinically dosed thermogenic with green tea extract, 5-HTP, and white willow bark. No proprietary blends, no fillers.", price:"$50", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=transparent+labs+fat+burner&tag=smartstacksup-20", tags:["weight","thermogenic","metabolism"] },
+  { id:14, name:"Thorne Berberine", category:"weight", emoji:"🍂", desc:"Premium berberine HCl for blood sugar regulation, metabolic health, and gut microbiome support. Clinically validated ingredient.", price:"$42", commission:"5%", badge:"essential", url:"https://www.amazon.com/s?k=thorne+berberine&tag=smartstacksup-20", tags:["weight","metabolism","glucose"] },
+  { id:15, name:"Jarrow Formulas CLA", category:"weight", emoji:"💊", desc:"Conjugated Linoleic Acid from safflower oil. Clinically studied to support lean body mass, reduce fat storage, and improve body composition.", price:"$35", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=jarrow+formulas+CLA&tag=smartstacksup-20", tags:["weight","body composition","fat loss"] },
+  { id:16, name:"NOW Foods Green Tea Extract", category:"weight", emoji:"🍵", desc:"Standardized to 60% EGCG — the most potent green tea catechin for fat oxidation, metabolism boost, and powerful antioxidant protection.", price:"$32", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=now+foods+green+tea+extract+egcg&tag=smartstacksup-20", tags:["weight","metabolism","antioxidant"] },
+  { id:17, name:"Designs for Health Carnitine", category:"weight", emoji:"🏃", desc:"Pharmaceutical grade L-Carnitine Fumarate for enhanced fat burning, energy production, and improved exercise recovery.", price:"$48", commission:"5%", badge:null, url:"https://www.amazon.com/s?k=designs+for+health+carnitine+fumarate&tag=smartstacksup-20", tags:["weight","fat burning","energy"] },
+
+  // ── HORMONAL HEALTH ──
+  { id:18, name:"Thorne Ashwagandha", category:"hormonal", emoji:"🌿", desc:"KSM-66 ashwagandha root extract — the most clinically studied form. Lowers cortisol, supports testosterone, and reduces stress significantly.", price:"$42", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=thorne+ashwagandha+ksm66&tag=smartstacksup-20", tags:["hormonal","testosterone","stress","cortisol"] },
+  { id:19, name:"Thorne Vitamin D3 + K2", category:"hormonal", emoji:"☀️", desc:"The gold standard D3/K2 combination for testosterone support, bone density, immune function, and cardiovascular health.", price:"$40", commission:"4%", badge:"essential", url:"https://www.amazon.com/s?k=thorne+vitamin+d3+k2&tag=smartstacksup-20", tags:["hormonal","testosterone","immune","bones"] },
+  { id:20, name:"NOW Foods Zinc Picolinate", category:"hormonal", emoji:"⚙️", desc:"Highly bioavailable zinc picolinate critical for testosterone production, immune function, and reproductive health.", price:"$32", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=now+foods+zinc+picolinate&tag=smartstacksup-20", tags:["hormonal","testosterone","immune"] },
+  { id:21, name:"Pure Encapsulations Magnesium Glycinate", category:"hormonal", emoji:"🌙", desc:"Ultra-pure magnesium glycinate for testosterone support, deep sleep quality, muscle relaxation, and stress reduction.", price:"$48", commission:"4%", badge:"popular", url:"https://www.amazon.com/s?k=pure+encapsulations+magnesium+glycinate&tag=smartstacksup-20", tags:["hormonal","sleep","testosterone","recovery"] },
+  { id:22, name:"Gaia Herbs Maca Root", category:"hormonal", emoji:"🌱", desc:"Certified organic Peruvian maca root for hormonal balance, libido support, energy, and stamina. Phytonutrient-rich whole herb.", price:"$35", commission:"5%", badge:null, url:"https://www.amazon.com/s?k=gaia+herbs+maca+root&tag=smartstacksup-20", tags:["hormonal","libido","energy","balance"] },
+
+  // ── GUT HEALTH ──
+  { id:23, name:"Seed DS-01 Daily Synbiotic", category:"gut", emoji:"🦠", desc:"The most advanced probiotic on the market. 53.6 billion AFU across 24 clinically studied strains with prebiotic outer capsule.", price:"$50", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=seed+ds01+daily+synbiotic+probiotic&tag=smartstacksup-20", tags:["gut","probiotic","immune","microbiome"] },
+  { id:24, name:"Garden of Life Raw Probiotics", category:"gut", emoji:"🌿", desc:"100 billion CFU from 34 probiotic strains with raw prebiotics and digestive enzymes. Non-GMO verified and gluten free.", price:"$45", commission:"4%", badge:"essential", url:"https://www.amazon.com/s?k=garden+of+life+raw+probiotics&tag=smartstacksup-20", tags:["gut","probiotic","immune","digestion"] },
+  { id:25, name:"Thorne L-Glutamine", category:"gut", emoji:"🔄", desc:"NSF certified L-Glutamine to repair and maintain gut lining integrity, support immune function, and accelerate recovery.", price:"$38", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=thorne+l-glutamine&tag=smartstacksup-20", tags:["gut","immune","recovery","lining"] },
+  { id:26, name:"Enzymedica Digest Gold", category:"gut", emoji:"✨", desc:"The number one selling digestive enzyme in the US. Breaks down proteins, fats, and carbohydrates for maximum nutrient absorption.", price:"$42", commission:"5%", badge:"popular", url:"https://www.amazon.com/s?k=enzymedica+digest+gold&tag=smartstacksup-20", tags:["gut","digestion","enzymes","absorption"] },
+  { id:27, name:"NOW Foods Psyllium Husk", category:"gut", emoji:"🌾", desc:"Premium soluble fiber that feeds beneficial gut bacteria, supports regularity, and helps maintain healthy cholesterol levels.", price:"$32", commission:"4%", badge:null, url:"https://www.amazon.com/s?k=now+foods+psyllium+husk+powder&tag=smartstacksup-20", tags:["gut","fiber","microbiome","cholesterol"] },
+];
+
+let clicks = 0;
+let estCommission = 0;
+const AVG_ORDER = 28;
+
+// ═══ NAV ═══
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ═══ STORE ═══
+function renderProducts(filtered) {
+  const grid = document.getElementById('product-grid');
+  const list = filtered || PRODUCTS;
+  document.getElementById('product-count').textContent = list.length + ' products';
+  grid.innerHTML = list.map(p => `
+    <div class="product-card" onclick="trackClick('${p.url}', ${parseFloat(p.commission)})">
+      <div class="product-img" style="background:${catColor(p.category)}">
+        ${p.badge === 'essential' ? '<div class="badge-essential">Essential</div>' : p.badge === 'popular' ? '<div class="badge-popular">Best Seller</div>' : ''}
+        <span style="font-size:52px">${p.emoji}</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category">${catLabel(p.category)}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-footer">
+          <div>
+            <div class="product-price">${p.price}</div>
+
+          </div>
+          <button class="buy-btn" onclick="event.stopPropagation();trackClick('${p.url}', ${parseFloat(p.commission)})">
+            Buy <span class="amazon-icon">↗</span>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function catColor(c) {
+  return {muscle:'#e8f5ef', energy:'#fdf4e7', weight:'#fbeae8', hormonal:'#f0e8fb', gut:'#e8f0fb'}[c] || '#f0f4f0';
+}
+function catLabel(c) {
+  return {muscle:'Muscle & Strength', energy:'Energy & Focus', weight:'Weight Management', hormonal:'Hormonal Health', gut:'Gut Health'}[c] || c;
+}
+
+function filterProducts(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = cat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === cat);
+  renderProducts(filtered);
+}
+
+function trackClick(url, commissionRate) {
+  try {
+    const stored = localStorage.getItem('smartstack_clicks');
+    const data = stored ? JSON.parse(stored) : { log: [], products: {} };
+    const product = PRODUCTS.find(p => p.url === url) || {};
+    const entry = { time: new Date().toLocaleString(), product: product.name || 'Unknown', category: catLabel(product.category || ''), commission: commissionRate };
+    data.log.push(entry);
+    data.products[entry.product] = (data.products[entry.product] || 0) + 1;
+    localStorage.setItem('smartstack_clicks', JSON.stringify(data));
+  } catch(e) {}
+  window.open(url, '_blank');
+}
+
+// ═══ QUIZ ═══
+let quizStep = 0;
+const quizAnswers = {};
+const TOTAL_STEPS = 5;
+
+function buildProgress() {
+  const bar = document.getElementById('quiz-progress');
+  bar.innerHTML = Array.from({length: TOTAL_STEPS}, (_,i) =>
+    `<div class="prog-seg ${i < quizStep ? 'done' : i === quizStep ? 'active' : ''}"></div>`
+  ).join('');
+}
+
+document.querySelectorAll('.quiz-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const group = opt.dataset.group;
+    if (opt.classList.contains('multi')) {
+      // Multi-select behavior for goals
+      opt.classList.toggle('selected');
+      const selected = [...document.querySelectorAll(`[data-group="${group}"].selected`)].map(o => o.dataset.val);
+      quizAnswers[group] = selected.join(', ');
+      const countEl = document.getElementById('goal-count');
+      if (countEl) {
+        countEl.textContent = selected.length === 0 ? 'Select at least one goal' : `${selected.length} goal${selected.length > 1 ? 's' : ''} selected ✓`;
+        countEl.style.color = selected.length > 0 ? 'var(--green)' : 'var(--muted)';
+      }
+    } else {
+      // Single-select for all other questions
+      document.querySelectorAll(`[data-group="${group}"]`).forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      quizAnswers[group] = opt.dataset.val;
+    }
+  });
+});
+
+function nextQ(step) {
+  document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('qstep-' + step).classList.add('active');
+  quizStep = step;
+  buildProgress();
+}
+
+buildProgress();
+
+const loadMsgs = ['Analyzing your profile...','Matching supplements to your goals...','Cross-referencing the research...','Checking your budget fit...','Almost ready...'];
+
+async function generateRecs() {
+  document.getElementById('quiz-container').style.display = 'none';
+  document.getElementById('advisor-loading').style.display = 'block';
+
+  let mi = 0;
+  const msgEl = document.getElementById('loading-msg');
+  const interval = setInterval(() => { mi = (mi+1) % loadMsgs.length; msgEl.textContent = loadMsgs[mi]; }, 2000);
+
+  const profile = {
+    goal: quizAnswers.goal || 'general health',
+    experience: quizAnswers.experience || 'intermediate',
+    diet: quizAnswers.diet || 'omnivore',
+    health: quizAnswers.health || 'none',
+    budget: quizAnswers.budget || '$30–$75'
+  };
+
+  const productList = PRODUCTS.map(p => `- ${p.name} (${catLabel(p.category)}): ${p.desc}`).join('\n');
+
+  const prompt = `You are a certified sports nutritionist. Based on the user profile below, recommend the best 5–8 supplements from the available product list that address ALL of their goals. Respond ONLY with valid JSON, no markdown.
+
+User profile:
+- Goals: ${profile.goal}
+- Experience: ${profile.experience}
+- Diet: ${profile.diet}
+- Health conditions: ${profile.health}
+- Budget: ${profile.budget}
+
+Available products:
+${productList}
+
+Return this JSON:
+{
+  "headline": "One sentence personalized headline addressing all their goals",
+  "recommendations": [
+    {
+      "name": "Exact product name from list above",
+      "priority": "essential|recommended|optional",
+      "dose": "Specific dose and timing e.g. 5g with water post-workout",
+      "why": "1–2 sentence reason tailored to their specific goal and profile"
+    }
+  ]
+}
+
+Only recommend products from the list. Order by priority (essential first). Be specific and practical.`;
+
+  try {
+    const res = await fetch('/.netlify/functions/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+
+    // Read as text first to avoid empty JSON parse errors
+    const rawText = await res.text();
+    if (!rawText || rawText.trim() === '') {
+      throw new Error('Empty response from server. Check your Netlify function is deployed correctly.');
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch(parseErr) {
+      throw new Error('Server returned invalid response: ' + rawText.slice(0, 100));
+    }
+
+    if (data.error) throw new Error(data.error);
+    if (!data.text) throw new Error('No recommendation text returned from server.');
+
+    const clean = data.text.replace(/```json|```/g, '').trim();
+
+    let result;
+    try {
+      result = JSON.parse(clean);
+    } catch(jsonErr) {
+      throw new Error('Could not parse AI recommendations. Please try again.');
+    }
+
+    clearInterval(interval);
+    renderRecs(result, profile);
+  } catch(e) {
+    clearInterval(interval);
+    document.getElementById('advisor-loading').style.display = 'none';
+    document.getElementById('advisor-results').style.display = 'block';
+    document.getElementById('recs-list').innerHTML = `<p style="color:#A32D2D;padding:1rem;background:#FCEBEB;border-radius:8px">Error: ${e.message || 'Could not generate recommendations'}. Please try again.</p>`;
+    document.getElementById('results-subtitle').textContent = '';
+  }
+}
+
+function renderRecs(result, profile) {
+  document.getElementById('advisor-loading').style.display = 'none';
+  document.getElementById('advisor-results').style.display = 'block';
+  document.getElementById('results-subtitle').textContent = result.headline || '';
+
+  const list = result.recommendations || [];
+  document.getElementById('recs-list').innerHTML = list.map(rec => {
+    const product = PRODUCTS.find(p => p.name.toLowerCase() === rec.name.toLowerCase()) || {};
+    const url = product.url || `https://www.amazon.com/s?k=${encodeURIComponent(rec.name)}&tag=smartstacksup-20`;
+    const commission = parseFloat(product.commission || '4');
+    const priBadge = rec.priority === 'essential' ? `<span class="rec-dose" style="background:#e8f5ef;color:#1a6b4a">${rec.priority}</span>` : rec.priority === 'recommended' ? `<span class="rec-dose" style="background:#fdf4e7;color:#c8933a">${rec.priority}</span>` : `<span class="rec-dose" style="background:#f0f4f0;color:#5a7060">${rec.priority}</span>`;
+    return `
+    <div class="rec-card">
+      <div class="rec-emoji">${product.emoji || '💊'}</div>
+      <div class="rec-body">
+        <div class="rec-name">${rec.name}</div>
+        <div class="rec-why">${rec.why}</div>
+        <div class="rec-footer">
+          ${priBadge}
+          <span class="rec-dose">${rec.dose}</span>
+          <a class="rec-buy" href="${url}" target="_blank" onclick="trackClick('${url}', ${commission}); event.preventDefault(); window.open('${url}','_blank')">
+            🛒 Buy on Amazon
+          </a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function restartAdvisor() {
+  quizStep = 0;
+  Object.keys(quizAnswers).forEach(k => delete quizAnswers[k]);
+  document.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('advisor-results').style.display = 'none';
+  document.getElementById('advisor-loading').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  nextQ(0);
+}
+
+// Init
+renderProducts();
+</script>
+</body>
+</html>

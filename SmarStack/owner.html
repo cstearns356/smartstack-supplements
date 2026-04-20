@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartStack Supplements — Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a6b4a; --green-light: #e8f5ef; --green-mid: #2d9166;
+    --gold: #c8933a; --gold-light: #fdf4e7;
+    --dark: #0f1a14; --text: #1c2b22; --muted: #5a7060;
+    --border: #d4e4d8; --bg: #f7faf8; --white: #fff;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LOCK SCREEN */
+  #lock-screen {
+    position: fixed; inset: 0; background: var(--dark);
+    display: flex; align-items: center; justify-content: center; z-index: 999;
+  }
+  .lock-box { background: #1a2e20; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 2.5rem; width: 320px; text-align: center; }
+  .lock-logo { font-family: var(--serif); font-size: 26px; color: #fff; margin-bottom: 0.25rem; }
+  .lock-logo span { color: var(--gold); }
+  .lock-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 2rem; }
+  .lock-label { font-size: 12px; color: rgba(255,255,255,0.5); text-align: left; margin-bottom: 6px; }
+  .lock-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 15px; font-family: var(--sans); letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .lock-input:focus { outline: none; border-color: var(--green-mid); }
+  .lock-btn { width: 100%; background: var(--green-mid); color: #fff; border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--sans); }
+  .lock-btn:hover { background: var(--green); }
+  .lock-error { color: #f08080; font-size: 12px; margin-top: 0.5rem; display: none; }
+
+  /* DASHBOARD */
+  #dashboard { display: none; }
+  header { background: var(--dark); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: var(--serif); font-size: 22px; color: #fff; }
+  .logo span { color: var(--gold); }
+  .owner-tag { font-size: 12px; color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.07); padding: 4px 12px; border-radius: 99px; }
+
+  .dash-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .dash-title { font-family: var(--serif); font-size: 28px; margin-bottom: 0.25rem; }
+  .dash-sub { font-size: 14px; color: var(--muted); margin-bottom: 2rem; }
+
+  /* STAT CARDS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 2rem; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .stat-val { font-family: var(--serif); font-size: 32px; color: var(--text); line-height: 1; margin-bottom: 4px; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.gold { color: var(--gold); }
+  .stat-change { font-size: 12px; color: var(--green-mid); }
+
+  /* SECTION */
+  .section { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .section-title { font-size: 16px; font-weight: 500; margin-bottom: 1rem; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .reset-btn { font-size: 12px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 12px; cursor: pointer; font-family: var(--sans); }
+  .reset-btn:hover { border-color: var(--green-mid); color: var(--green); }
+
+  /* CLICK LOG */
+  .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .log-table th { text-align: left; color: var(--muted); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .log-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .log-table tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .pill-green { background: var(--green-light); color: var(--green); }
+  .pill-gold { background: var(--gold-light); color: var(--gold); }
+  .empty-log { text-align: center; padding: 2rem; color: var(--muted); font-size: 14px; }
+
+  /* TOP PRODUCTS */
+  .top-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .top-row:last-child { border-bottom: none; }
+  .top-name { font-weight: 500; }
+  .top-clicks { color: var(--muted); font-size: 13px; }
+
+  /* PAYOUT CALC */
+  .calc-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .calc-row:last-child { border-bottom: none; font-weight: 500; font-size: 16px; }
+  .calc-label { color: var(--muted); }
+  .calc-val { font-weight: 500; }
+  .calc-total { color: var(--green); font-family: var(--serif); font-size: 28px; }
+
+  /* TIPS */
+  .tip-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .tip-item:last-child { border-bottom: none; }
+  .tip-num { width: 24px; height: 24px; border-radius: 50%; background: var(--green-light); color: var(--green); font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { color: var(--text); line-height: 1.5; }
+  .tip-text strong { color: var(--green); font-weight: 500; }
+
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    header { padding: 1rem; }
+    .dash-body { padding: 1.5rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-logo">Smart<span>Stack</span> Supplements</div>
+    <div class="lock-sub">Owner dashboard — private access</div>
+    <div class="lock-label">Password</div>
+    <input type="password" class="lock-input" id="pwd-input" placeholder="Enter your password" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="lock-btn" onclick="unlock()">Access Dashboard</button>
+    <div class="lock-error" id="lock-error">Incorrect password. Try again.</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.2);margin-top:1rem">Default password: smartstack2024 — change this in the code</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <header>
+    <div class="logo">Smart<span>Stack</span> Supplements</div>
+    <div class="owner-tag">Owner dashboard</div>
+  </header>
+
+  <div class="dash-body">
+    <div class="dash-title">Revenue overview</div>
+    <div class="dash-sub" id="dash-date">Loading...</div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total clicks</div>
+        <div class="stat-val" id="s-clicks">0</div>
+        <div class="stat-change">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Est. commissions</div>
+        <div class="stat-val green" id="s-commission">$0.00</div>
+        <div class="stat-change">~4% avg rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Est. orders</div>
+        <div class="stat-val gold" id="s-orders">0</div>
+        <div class="stat-change">At 3% conversion</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Products tracked</div>
+        <div class="stat-val" id="s-products">24</div>
+        <div class="stat-change">In catalog</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem">
+
+      <div class="section">
+        <div class="section-title">
+          Top clicked products
+          <span style="font-size:12px;color:var(--muted);font-weight:400">This session</span>
+        </div>
+        <div id="top-products"><div class="empty-log">No clicks recorded yet</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Payout estimate</div>
+        <div class="calc-row">
+          <span class="calc-label">Total clicks</span>
+          <span class="calc-val" id="p-clicks">0</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Est. conversion rate</span>
+          <span class="calc-val">3%</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Avg. order value</span>
+          <span class="calc-val">$28</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Avg. commission rate</span>
+          <span class="calc-val">4%</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Estimated payout</span>
+          <span class="calc-total" id="p-payout">$0.00</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        Click log
+        <button class="reset-btn" onclick="resetLog()">Clear log</button>
+      </div>
+      <div id="click-log-wrap">
+        <div class="empty-log">No clicks yet — send customers to your store to start tracking</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Tips to increase your commissions</div>
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text"><strong>Share the AI Advisor link directly</strong> — people who complete the quiz convert at much higher rates than cold browsers. Post it in fitness Facebook groups and Reddit.</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text"><strong>Hit 3 sales in your first 180 days</strong> — Amazon requires this to keep your account. Ask friends or family to buy through your links first.</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text"><strong>Focus on high-ticket products</strong> — Whey Protein ($48) and Lion's Mane ($40) earn more per click than budget items. Feature these prominently.</div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text"><strong>Amazon pays on everything in the cart</strong> — if someone clicks your supplement link and buys a TV too, you earn commission on the TV. Drive traffic, not just supplement shoppers.</div></div>
+      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text"><strong>Replace YOURTAG-20</strong> in the store file with your real Amazon Associates tag or you won't get credited for any sales.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const PASSWORD = 'smartstack2024';
+
+function unlock() {
+  const val = document.getElementById('pwd-input').value;
+  if (val === PASSWORD) {
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    initDashboard();
+  } else {
+    document.getElementById('lock-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+  }
+}
+
+// Shared click data via localStorage
+let clickLog = [];
+let productClicks = {};
+
+function initDashboard() {
+  document.getElementById('dash-date').textContent = 'Last updated: ' + new Date().toLocaleString();
+  loadData();
+  renderAll();
+  setInterval(() => { loadData(); renderAll(); }, 5000);
+}
+
+function loadData() {
+  try {
+    const stored = localStorage.getItem('smartstack_clicks');
+    if (stored) {
+      const data = JSON.parse(stored);
+      clickLog = data.log || [];
+      productClicks = data.products || {};
+    }
+  } catch(e) {}
+}
+
+function renderAll() {
+  const totalClicks = clickLog.length;
+  const estCommission = totalClicks * 28 * 0.03 * 0.04;
+  const estOrders = Math.floor(totalClicks * 0.03);
+
+  document.getElementById('s-clicks').textContent = totalClicks;
+  document.getElementById('s-commission').textContent = '$' + estCommission.toFixed(2);
+  document.getElementById('s-orders').textContent = estOrders;
+  document.getElementById('p-clicks').textContent = totalClicks;
+  document.getElementById('p-payout').textContent = '$' + estCommission.toFixed(2);
+
+  // Top products
+  const sorted = Object.entries(productClicks).sort((a,b) => b[1]-a[1]).slice(0,5);
+  document.getElementById('top-products').innerHTML = sorted.length ? sorted.map(([name, count]) =>
+    `<div class="top-row"><span class="top-name">${name}</span><span class="top-clicks">${count} click${count!==1?'s':''}</span></div>`
+  ).join('') : '<div class="empty-log">No clicks yet</div>';
+
+  // Click log
+  if (clickLog.length === 0) {
+    document.getElementById('click-log-wrap').innerHTML = '<div class="empty-log">No clicks yet — send customers to your store to start tracking</div>';
+  } else {
+    const rows = [...clickLog].reverse().slice(0, 50).map(c =>
+      `<tr>
+        <td>${c.time}</td>
+        <td><strong>${c.product}</strong></td>
+        <td><span class="pill pill-green">${c.category}</span></td>
+        <td><span class="pill pill-gold">${c.commission}% commission</span></td>
+      </tr>`
+    ).join('');
+    document.getElementById('click-log-wrap').innerHTML =
+      `<table class="log-table">
+        <thead><tr><th>Time</th><th>Product</th><th>Category</th><th>Rate</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+}
+
+function resetLog() {
+  if (confirm('Clear all click data? This cannot be undone.')) {
+    clickLog = []; productClicks = {};
+    localStorage.removeItem('smartstack_clicks');
+    renderAll();
+  }
+}
+</script>
+</body>
+</html>
